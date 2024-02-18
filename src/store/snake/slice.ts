@@ -34,9 +34,10 @@ const snakeSlice = createSlice({
                 state.movingDirection = data[0];
         },
         increaseSize: (state: SnakeStateType) => {
+            // console.log(state.)
             const len=state.pos.length
-            const newX=state.pos[len-1].x-20;
-            const newY=state.pos[len-1].y-20
+            const newX=state.pos[len-1].x+20;
+            const newY=state.pos[len-1].y+20
             state.pos.push({x:newX,y:newY});
         }
     }
