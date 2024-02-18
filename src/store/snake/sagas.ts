@@ -1,6 +1,6 @@
-import { delay, put, select, takeEvery } from "redux-saga/effects";
+import { call, delay, put, select, takeEvery } from "redux-saga/effects";
 import { START_MOVING, direction } from "./types";
-import { makeMove } from "./slice";
+import { makeMove, stopMovingSnake } from "./slice";
 import { RootState } from "../rootReducer";
 
 

@@ -3,7 +3,7 @@ import BoardStateType from "./types";
 
 
 const initialScore: BoardStateType = {
-    score:0,
+    score: 0,
 }
 
 const boardSlice = createSlice({
@@ -13,11 +13,14 @@ const boardSlice = createSlice({
         incrementScore: (state: BoardStateType) => {
             console.log('hey')
             state.score++;
+        },
+        resetScore: (state: BoardStateType) => {
+            state.score = 0;
         }
     }
 })
 
 const boardReducer = boardSlice.reducer;
-export const { incrementScore } = boardSlice.actions;
+export const { incrementScore, resetScore } = boardSlice.actions;
 
 export default boardReducer;
