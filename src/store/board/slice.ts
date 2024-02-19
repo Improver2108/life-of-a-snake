@@ -10,8 +10,7 @@ const boardSlice = createSlice({
     name: "board",
     initialState: initialScore,
     reducers: {
-        incrementScore: (state: BoardStateType) => {
-            console.log('hey')
+        incrementBoardScore: (state: BoardStateType) => {
             state.score++;
         },
         resetScore: (state: BoardStateType) => {
@@ -21,6 +20,6 @@ const boardSlice = createSlice({
 })
 
 const boardReducer = boardSlice.reducer;
-export const { incrementScore, resetScore } = boardSlice.actions;
+export const { incrementBoardScore, resetScore } = boardSlice.actions;
 
 export default boardReducer;

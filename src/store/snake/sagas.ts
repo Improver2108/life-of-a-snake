@@ -1,10 +1,11 @@
-import { call, delay, put, select, takeEvery } from "redux-saga/effects";
+import { call, delay, put, select, takeEvery, takeLatest } from "redux-saga/effects";
 import { START_MOVING, direction } from "./types";
-import { makeMove, stopMovingSnake } from "./slice";
+import { increaseSize, makeMove } from "./slice";
 import { RootState } from "../rootReducer";
+import { incrementBoardScore } from "../board/slice";
 
 
-function getMoveData(direction:direction) {
+function getMoveData(direction: direction) {
     switch (direction) {
         case 'right':
             return ['right', 'left', 20, 0];
@@ -23,14 +24,20 @@ function* startMoveSaga() {
     while (true) {
         const isMoving: boolean = yield select((state: RootState) => state.snake.movingDirection !== '');
         if (isMoving) {
-            const direction:direction = yield select((state: RootState) => state.snake.movingDirection);
+            const direction: direction = yield select((state: RootState) => state.snake.movingDirection);
             yield put(makeMove(getMoveData(direction)))
             yield delay(100)
         } else break
     }
-    
+
 }
+
+// function* increaseSizeAndIncrementScore() {
+//     // dispatch the increaseSize action with the action payload
+//     yield call(incrementBoardScore) // dispatch the incrementScore action from the board slice
+// }
 
 export function* watchSnakeSaga() {
     yield takeEvery(START_MOVING, startMoveSaga);
+    // yield takeLatest(increaseSize.type,increaseSizeAndIncrementScore)
 }

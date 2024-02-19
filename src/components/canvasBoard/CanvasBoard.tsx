@@ -4,7 +4,7 @@ import { IObjectBody, clearBoard, collideWithItself, drawObject, generateRandomP
 import { RootState } from "../../store/rootReducer";
 import { AppDispatch } from "../../store/store";
 import { changeDirection, increaseSize, startMovingSnake, stopMovingSnake } from "../../store/snake/slice";
-import { incrementScore, resetScore } from "../../store/board/slice";
+import { incrementBoardScore, resetScore } from "../../store/board/slice";
 import Instruction from "./Instruction";
 
 interface ICanvasBoard {
@@ -17,14 +17,15 @@ const CanvasBoard = ({ height, width }: ICanvasBoard) => {
     const [context, setContext] = useState<CanvasRenderingContext2D | null>(null);
     const [isGameOver, setIsGameOver] = useState<boolean>(false);
     const [foodPos, setFoodPos] = useState<IObjectBody>(generateRandomPosition(width - 20, height - 20));
-    const [isConsumed, setIsConsumed] = useState<boolean>(false);
+    const [isConsumed, setIsConsumed] = useState<boolean>(false)
 
 
-    const snake1 = useSelector((state: RootState) => state.snake.pos);
+    const snake1 = useSelector((state: RootState) => state.snake);
     const movingDirection = useSelector((state: RootState) => state.snake.movingDirection)
 
 
     const dispatch = useDispatch<AppDispatch>()
+    const isDispatchedRef = useRef(false);
 
     useEffect(() => {
         window.addEventListener('keypress', handleKeyPress);
@@ -37,36 +38,31 @@ const CanvasBoard = ({ height, width }: ICanvasBoard) => {
     useEffect(() => {
         setContext(canvasRef.current?.getContext('2d') || null);
         clearBoard(context);
-        drawObject(context, snake1, "#91C483");
+        drawObject(context, snake1.pos, "#91C483");
         drawObject(context, [foodPos], "#676FA3");
-        console.log(1)
-        if (snake1[0].x === foodPos.x && snake1[0].y === foodPos.y) {
-            console.log('is consumed changed')
+        if (snake1.pos[0].x === foodPos.x && snake1.pos[0].y === foodPos.y) {
+            console.log('1')
             setIsConsumed(true);
+            const foodPos =  generateRandomPosition(width - 20, height - 20);
+            setFoodPos(foodPos);
         };
 
-        if (snake1[0].x >= width || snake1[0].x <= -20 || snake1[0].y >= height || snake1[0].y <= -2) {
-            // console.log(snake1[0].x, snake1[0].y)
+        if (snake1.pos[0].x >= width || snake1.pos[0].x <= -20 || snake1.pos[0].y >= height || snake1.pos[0].y <= -2 || collideWithItself(snake1.pos[0],snake1.pos)) {
             setIsGameOver(!isGameOver)
             dispatch(stopMovingSnake());
-            // clearBoard(context)
-            // drawObject(context, snake1, "#91C483");
+            dispatch(resetScore());
+        };
 
-        }
-
-    }, [context, snake1, foodPos])
+    }, [context, snake1.pos])
 
     useEffect(() => {
-        console.log(2)
         if (isConsumed) {
-            const pos = generateRandomPosition(width - 20, height - 20);
-            console.log('useeffect2')
-            setFoodPos(pos);
-            setIsConsumed(false);
-            dispatch(incrementScore())
-            // dispatch(increaseSize());  
+            setIsConsumed(false)
+            dispatch(incrementBoardScore())
+            dispatch(increaseSize())
         }
-    }, [isConsumed, foodPos, dispatch])
+    }, [isConsumed])
+
 
     const handleKeyPress = useCallback((event: KeyboardEvent) => {
         event.preventDefault();
@@ -86,14 +82,14 @@ const CanvasBoard = ({ height, width }: ICanvasBoard) => {
         dispatch(resetScore());
         dispatch(stopMovingSnake())
         clearBoard(context);
-        drawObject(context, snake1, "#91C483");
+        drawObject(context, snake1.pos, "#91C483");
         drawObject(
             context,
             [generateRandomPosition(width - 20, height - 20)],
             "#676FA3"
         ); //Draws object randomly
         window.addEventListener("keypress", handleKeyPress);
-    }, [context,snake1])
+    }, [context, snake1])
 
     return (
         <>
