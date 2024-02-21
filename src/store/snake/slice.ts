@@ -1,5 +1,5 @@
-import { PayloadAction, createSlice, current } from "@reduxjs/toolkit"
-import SnakeStateType, { direction } from "./types"
+import { PayloadAction, createSlice } from "@reduxjs/toolkit"
+import SnakeStateType from "./types"
 
 const snakeInitialState: SnakeStateType = {
     pos: [
@@ -8,7 +8,8 @@ const snakeInitialState: SnakeStateType = {
         { x: 540, y: 300 },
         { x: 520, y: 300 },
     ],
-    movingDirection: ''
+    movingDirection: '',
+    currentSpeedMultiplier: 1
 };
 
 
@@ -34,13 +35,16 @@ const snakeSlice = createSlice({
                 state.movingDirection = data[0];
         },
         increaseSize: (state: SnakeStateType) => {
-            const len=state.pos.length
-            const newX=state.pos[len-1].x-20;
-            const newY=state.pos[len-1].y-20;
-            state.pos.push({x:newX,y:newY});
+            const len = state.pos.length
+            const newX = state.pos[len - 1].x - 20;
+            const newY = state.pos[len - 1].y - 20;
+            state.pos.push({ x: newX, y: newY });
+        },
+        changeSpeed: (state: SnakeStateType,{payload:speed}:PayloadAction<number>) => {
+            state.currentSpeedMultiplier = speed;
         }
     }
 });
 const snakeReducer = snakeSlice.reducer;
-export const { startMovingSnake, makeMove, changeDirection, stopMovingSnake ,increaseSize} = snakeSlice.actions;
+export const { startMovingSnake, makeMove, changeDirection, stopMovingSnake, increaseSize, changeSpeed } = snakeSlice.actions;
 export default snakeReducer

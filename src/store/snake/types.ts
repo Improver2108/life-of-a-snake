@@ -6,6 +6,8 @@ export type direction= 'up' | 'down' | 'left' | 'right';
 export default interface SnakeStateType {
     pos: ISnakeCoord[],
     movingDirection: direction|'';
+    currentSpeedMultiplier :number
+    
 }
 
 export const SNAKE = "snake";

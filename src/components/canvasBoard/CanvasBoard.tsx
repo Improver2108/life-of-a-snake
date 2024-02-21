@@ -3,9 +3,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { IObjectBody, clearBoard, collideWithItself, drawObject, generateRandomPosition } from "./Utilities/utilities";
 import { RootState } from "../../store/rootReducer";
 import { AppDispatch } from "../../store/store";
-import { changeDirection, increaseSize, startMovingSnake, stopMovingSnake } from "../../store/snake/slice";
+import { changeDirection, changeSpeed, increaseSize, startMovingSnake, stopMovingSnake } from "../../store/snake/slice";
 import { incrementBoardScore, resetScore } from "../../store/board/slice";
 import Instruction from "./Instruction";
+import { Score } from "../../store/board/types";
 
 interface ICanvasBoard {
     height: number;
@@ -22,10 +23,10 @@ const CanvasBoard = ({ height, width }: ICanvasBoard) => {
 
     const snake1 = useSelector((state: RootState) => state.snake);
     const movingDirection = useSelector((state: RootState) => state.snake.movingDirection)
+    const score = useSelector((state:RootState)=>state.board.score)
 
 
     const dispatch = useDispatch<AppDispatch>()
-    const isDispatchedRef = useRef(false);
 
     useEffect(() => {
         window.addEventListener('keypress', handleKeyPress);
@@ -45,16 +46,19 @@ const CanvasBoard = ({ height, width }: ICanvasBoard) => {
             setIsConsumed(true);
             const foodPos =  generateRandomPosition(width - 20, height - 20);
             setFoodPos(foodPos);
+            const multiplier = handleSpeed(score);
+            dispatch(changeSpeed(multiplier));
         };
 
         if (snake1.pos[0].x >= width || snake1.pos[0].x <= -20 || snake1.pos[0].y >= height || snake1.pos[0].y <= -2 || collideWithItself(snake1.pos[0],snake1.pos)) {
             setIsGameOver(!isGameOver)
             dispatch(stopMovingSnake());
             dispatch(resetScore());
+            dispatch(changeSpeed(1))
         };
 
     }, [context, snake1.pos])
-
+    
     useEffect(() => {
         if (isConsumed) {
             setIsConsumed(false)
@@ -77,6 +81,14 @@ const CanvasBoard = ({ height, width }: ICanvasBoard) => {
             if (key === 'd') dispatch(startMovingSnake());
         }
     }, [movingDirection]);
+
+    const handleSpeed = useCallback((score:Score)=>{
+        let currentMultiplier:number;
+        if (score <=10) currentMultiplier=1
+        else if (score > 10 && score <=20 ) currentMultiplier=0.8
+        else currentMultiplier=0.6
+        return currentMultiplier;
+    },[isConsumed])
 
     const resetBoard = useCallback(() => {
         dispatch(resetScore());
@@ -101,6 +113,7 @@ const CanvasBoard = ({ height, width }: ICanvasBoard) => {
                 height={height}
                 width={width}
             />
+            {/* <button onClick={()=>dispatch(changeSpeed())}>Increase Speed</button> */}
             <Instruction resetBoard={resetBoard} />
         </>
 
