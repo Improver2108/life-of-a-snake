@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { IObjectBody, clearBoard, collideWithItself, drawObject, generateRandomPosition } from "./Utilities/utilities";
+import { IObjectBody, Obstacles, clearBoard, collideWithItself, fillBoard, generateRandomPosition } from "./Utilities/utilities";
 import { RootState } from "../../store/rootReducer";
 import { AppDispatch } from "../../store/store";
 import { changeDirection, changeSpeed, increaseSize, startMovingSnake, stopMovingSnake } from "../../store/snake/slice";
@@ -15,15 +15,15 @@ interface ICanvasBoard {
 
 const CanvasBoard = ({ height, width }: ICanvasBoard) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const [context, setContext] = useState<CanvasRenderingContext2D | null>(null);
     const [isGameOver, setIsGameOver] = useState<boolean>(false);
     const [foodPos, setFoodPos] = useState<IObjectBody>(generateRandomPosition(width - 20, height - 20));
     const [isConsumed, setIsConsumed] = useState<boolean>(false)
+    // const [obstacles,setObstacles]=useState<Obstacles>(generateObstacles(1,width-20,height-20))
 
 
     const snake1 = useSelector((state: RootState) => state.snake);
     const movingDirection = useSelector((state: RootState) => state.snake.movingDirection)
-    const score = useSelector((state:RootState)=>state.board.score)
+    const score = useSelector((state: RootState) => state.board.score)
 
 
     const dispatch = useDispatch<AppDispatch>()
@@ -36,29 +36,29 @@ const CanvasBoard = ({ height, width }: ICanvasBoard) => {
     })
 
 
+
+
     useEffect(() => {
-        setContext(canvasRef.current?.getContext('2d') || null);
-        clearBoard(context);
-        drawObject(context, snake1.pos, "#91C483");
-        drawObject(context, [foodPos], "#676FA3");
+        clearBoard(canvasRef.current?.getContext('2d'));
+        fillBoard(canvasRef.current?.getContext('2d'), snake1.pos, [foodPos], [{ x: 60, y: 280 }])
         if (snake1.pos[0].x === foodPos.x && snake1.pos[0].y === foodPos.y) {
-            console.log('1')
             setIsConsumed(true);
-            const foodPos =  generateRandomPosition(width - 20, height - 20);
+            const foodPos = generateRandomPosition(width - 20, height - 20);
             setFoodPos(foodPos);
             const multiplier = handleSpeed(score);
             dispatch(changeSpeed(multiplier));
         };
 
-        if (snake1.pos[0].x >= width || snake1.pos[0].x <= -20 || snake1.pos[0].y >= height || snake1.pos[0].y <= -2 || collideWithItself(snake1.pos[0],snake1.pos)) {
+        if (snake1.pos[0].x >= width || snake1.pos[0].x <= -20 || snake1.pos[0].y >= height || snake1.pos[0].y <= -2 || collideWithItself(snake1.pos[0], snake1.pos)) {
             setIsGameOver(!isGameOver)
             dispatch(stopMovingSnake());
             dispatch(resetScore());
             dispatch(changeSpeed(1))
         };
 
-    }, [context, snake1.pos])
-    
+
+    }, [canvasRef.current?.getContext('2d'), snake1.pos])
+
     useEffect(() => {
         if (isConsumed) {
             setIsConsumed(false)
@@ -82,26 +82,21 @@ const CanvasBoard = ({ height, width }: ICanvasBoard) => {
         }
     }, [movingDirection]);
 
-    const handleSpeed = useCallback((score:Score)=>{
-        let currentMultiplier:number;
-        if (score <=10) currentMultiplier=1
-        else if (score > 10 && score <=20 ) currentMultiplier=0.8
-        else currentMultiplier=0.6
+    const handleSpeed = useCallback((score: Score) => {
+        let currentMultiplier: number;
+        if (score <= 10) currentMultiplier = 1
+        else if (score > 10 && score <= 20) currentMultiplier = 0.8
+        else currentMultiplier = 0.6
         return currentMultiplier;
-    },[isConsumed])
+    }, [isConsumed])
 
     const resetBoard = useCallback(() => {
         dispatch(resetScore());
         dispatch(stopMovingSnake())
-        clearBoard(context);
-        drawObject(context, snake1.pos, "#91C483");
-        drawObject(
-            context,
-            [generateRandomPosition(width - 20, height - 20)],
-            "#676FA3"
-        ); //Draws object randomly
+        clearBoard(canvasRef.current?.getContext('2d'));
+        //Draws object randomly
         window.addEventListener("keypress", handleKeyPress);
-    }, [context, snake1])
+    }, [canvasRef.current?.getContext('2d'), snake1])
 
     return (
         <>
