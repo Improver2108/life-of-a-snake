@@ -1,12 +1,13 @@
 import { useSelector } from "react-redux"
 import { RootState } from "../../store/rootReducer"
+import { Heading } from "@chakra-ui/react"
 
 
 function Score() {
     const currScore = useSelector((state: RootState) => state.board.score)
     
     return (
-        <div>Score : {currScore}</div>
+        <Heading as='h1' size='xl'>Score : {currScore}</Heading>
     )
 }
 

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { IObjectBody, Obstacles, clearBoard, collideWithItself, fillBoard, generateRandomPosition } from "./Utilities/utilities";
+import { IObjectBody, Obstacles, clearBoard, collideWithItself, fillBoard, generateRandomPosition } from "../../Utilities/utilities";
 import { RootState } from "../../store/rootReducer";
 import { AppDispatch } from "../../store/store";
 import { changeDirection, changeSpeed, increaseSize, startMovingSnake, stopMovingSnake } from "../../store/snake/slice";
@@ -34,9 +34,6 @@ const CanvasBoard = ({ height, width }: ICanvasBoard) => {
             window.removeEventListener('keypress', handleKeyPress);
         };
     })
-
-
-
 
     useEffect(() => {
         clearBoard(canvasRef.current?.getContext('2d'));
